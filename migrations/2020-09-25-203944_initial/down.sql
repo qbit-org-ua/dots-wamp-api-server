@@ -1,0 +1,14 @@
+DROP TABLE `labs_cache`;
+DROP TABLE `labs_contests`;
+DROP TABLE `labs_contest_problems`;
+DROP TABLE `labs_contest_users`;
+DROP TABLE `labs_groups`;
+DROP TABLE `labs_messages`;
+DROP TABLE `labs_problems`;
+DROP TABLE `labs_problems_ua`;
+DROP TABLE `labs_sessions`;
+DROP TABLE `labs_solutions`;
+DROP TABLE `labs_tests`;
+DROP TABLE `labs_users`;
+DROP TABLE `labs_user_group_relationships`;
+DROP TABLE `labs_user_teacher_relationships`;

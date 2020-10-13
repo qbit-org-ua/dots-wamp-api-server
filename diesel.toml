@@ -1,0 +1,22 @@
+# For documentation on how to configure this file,
+# see diesel.rs/guides/configuring-diesel-cli
+
+[print_schema]
+file = "src/schema.rs"
+import_types = ["diesel::sql_types::*"]
+filter = { only_tables = [
+    "labs_cache",
+    "labs_contests",
+    "labs_contest_problems",
+    "labs_contest_users",
+    "labs_groups",
+    "labs_messages",
+    "labs_problems",
+    "labs_problems_ua",
+    "labs_sessions",
+    "labs_solutions",
+    "labs_tests",
+    "labs_users",
+    "labs_user_group_relationships",
+    "labs_user_teacher_relationships",
+  ]}

@@ -1,0 +1,54 @@
+version: '2'
+services:
+  wamp:
+    build: ./wamp
+    environment:
+      - WAMP_DOTS_PORT=8090
+      - WAMP_DOTS_BACKEND_SECRET=back
+    ports:
+      - '8090:8090'
+
+  db:
+    image: demyx/mariadb
+    environment:
+      - MARIADB_DATABASE=dots
+      - MARIADB_USERNAME=dots
+      - MARIADB_PASSWORD=dots_password
+      - MARIADB_ROOT_PASSWORD=dots_root_password # mandatory
+      - MARIADB_ROOT=/dots-db
+      - MARIADB_CONFIG=/etc/demyx
+      - MARIADB_LOG=/var/log/demyx
+      - MARIADB_CHARACTER_SET_SERVER=utf8
+      - MARIADB_COLLATION_SERVER=utf8_general_ci
+      - MARIADB_DEFAULT_CHARACTER_SET=utf8
+      - MARIADB_INNODB_BUFFER_POOL_SIZE=16M
+      - MARIADB_INNODB_DATA_FILE_PATH=ibdata1:10M:autoextend
+      - MARIADB_INNODB_FLUSH_LOG_AT_TRX_COMMIT=1
+      - MARIADB_INNODB_LOCK_WAIT_TIMEOUT=50
+      - MARIADB_INNODB_LOG_BUFFER_SIZE=8M
+      - MARIADB_INNODB_LOG_FILE_SIZE=5M
+      - MARIADB_INNODB_USE_NATIVE_AIO=1
+      - MARIADB_INNODB_FILE_PER_TABLE=1
+      - MARIADB_KEY_BUFFER_SIZE=20M
+      - MARIADB_MAX_ALLOWED_PACKET=16M
+      - MARIADB_MAX_CONNECTIONS=1000
+      - MARIADB_MYISAM_SORT_BUFFER_SIZE=8M
+      - MARIADB_NET_BUFFER_SIZE=8K
+      - MARIADB_READ_BUFFER=2M
+      - MARIADB_READ_BUFFER_SIZE=256K
+      - MARIADB_READ_RND_BUFFER_SIZE=512K
+      - MARIADB_SERVER_ID=1
+      - MARIADB_SORT_BUFFER_SIZE=20M
+      - MARIADB_TABLE_OPEN_CACHE=64
+      - MARIADB_WRITE_BUFFER=2M
+      - TZ=America/Los_Angeles
+    volumes:
+      - ./dots-db:/dots-db
+    ports:
+      - '3306:3306'
+
+  api:
+    build: ./
+    environment:
+      - 'WAMP_DOTS_URL=ws://wamp:8090/ws'
+      - WAMP_DOTS_BACKEND_SECRET=back
