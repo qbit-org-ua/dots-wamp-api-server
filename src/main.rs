@@ -14,6 +14,8 @@ mod users;
 
 pub type DbPool = std::sync::Arc<Pool<ConnectionManager<diesel::MysqlConnection>>>;
 
+const WAMP_COMMON_PREFIX: &'static str = "dots.2020";
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     use chrono::{DateTime, Local, NaiveDateTime, TimeZone, Utc};
@@ -48,9 +50,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
     });
 
     println!("Joining realm");
-    client.join_realm("dots").await?;
-
-    const WAMP_COMMON_PREFIX: &str = "dots.2020";
+    client
+        .join_realm_with_authentication(
+            "dots",
+            vec![wamp_async::AuthenticationMethod::Ticket],
+            "dots-backend",
+            |_authentication_method, _extra| async {
+                Ok(wamp_async::AuthenticationChallengeResponse::with_signature(
+                    "back".into(),
+                ))
+            },
+        )
+        .await?;
 
     let mut endpoint_rpc_ids = Vec::new();
     endpoint_rpc_ids.extend(crate::users::register(&client, WAMP_COMMON_PREFIX, &pool).await?);
@@ -64,13 +75,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         client
             .publish(
                 &format!("{}.solutions.recent", WAMP_COMMON_PREFIX),
-                None,
+                Some(vec![1.into()]),
                 None,
                 true,
             )
             .await
             .unwrap();
-        tokio::time::delay_for(std::time::Duration::from_secs(1)).await;
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
     }
 
     if let ClientState::Disconnected(Err(e)) = client.get_cur_status() {

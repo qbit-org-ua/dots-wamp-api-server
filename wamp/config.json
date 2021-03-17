@@ -36,8 +36,8 @@
                   "match": "prefix",
                   "allow": {
                     "call": true,
-                    "register": true,
-                    "publish": true,
+                    "register": false,
+                    "publish": false,
                     "subscribe": true
                   },
                   "disclose": {
@@ -70,7 +70,7 @@
                 "ticket": {
                   "type": "static",
                   "principals": {
-                    "near-explorer-backend": {
+                    "dots-backend": {
                       "ticket": "${WAMP_DOTS_BACKEND_SECRET}",
                       "role": "dots-backend"
                     }

@@ -8,14 +8,12 @@ edition = "2018"
 
 [dependencies]
 futures = "0.3.5"
-tokio = { version = "0.2.22", features = ["macros", "time"] }
+tokio = { version = "1", features = ["macros", "time"] }
 diesel = { version = "1.4.5", features = ["mysql", "r2d2"] }
-tokio-diesel = "0.3.0"
+tokio-diesel = { git = "https://github.com/mehcode/tokio-diesel", rev = "f4af42558246ab323600622ba8d08803d3c18842" }
 serde = "1.0.116"
 serde_json = "1.0.57"
 
 chrono = "0.4"
 
-#wamp_async = "0.1.0"
-wamp_async = { path = "./wamp_async.bak" }
-#wamp_async = { git = "https://github.com/elast0ny/wamp_async", rev = "7e90482f52ac04fe8f4b58bbf27083b355a0ae6b" }
+wamp_async = "0.3"

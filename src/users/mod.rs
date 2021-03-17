@@ -3,7 +3,7 @@ pub mod models;
 pub mod resolvers;
 
 pub async fn register(
-    client: &wamp_async::Client,
+    client: &wamp_async::Client<'_>,
     endpoint_prefix: &str,
     pool: &crate::DbPool,
 ) -> Result<Vec<wamp_async::WampId>, wamp_async::WampError> {

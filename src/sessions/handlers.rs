@@ -1,9 +1,9 @@
 use diesel::r2d2::{ConnectionManager, Pool};
 use wamp_async::{WampArgs, WampKwArgs};
 
-pub fn sign_in(
+pub fn sign_in<'a>(
     pool: std::sync::Arc<Pool<ConnectionManager<diesel::MysqlConnection>>>,
-) -> wamp_async::RpcFunc {
+) -> wamp_async::RpcFunc<'a> {
     Box::new(
         move |args: Option<WampArgs>, kwargs: Option<WampKwArgs>| -> wamp_async::RpcFuture {
             let pool = std::sync::Arc::clone(&pool);
