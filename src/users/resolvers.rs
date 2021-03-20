@@ -1,39 +1,39 @@
 use diesel::r2d2::{ConnectionManager, Pool};
-use tokio_diesel::AsyncRunQueryDsl;
+use tokio_diesel::{AsyncRunQueryDsl, OptionalExtension};
 
 #[derive(Debug, serde::Deserialize)]
-pub struct UserDetailsRequest {
+pub struct GetUserDetailsRequest {
     auth: crate::sessions::resolvers::AuthRequiredRequest,
     user_id: u32,
 }
 
-pub struct UserDetailsRequestResolver {
-    pub auth: crate::sessions::resolvers::AdminAuthRequiredResolver,
+pub struct UserDetails {
+    pub auth: crate::sessions::resolvers::AdminAuth,
     pub user: super::models::User,
 }
 
-impl UserDetailsRequestResolver {
+impl UserDetails {
     pub async fn resolve(
-        UserDetailsRequest { auth, user_id }: UserDetailsRequest,
+        request: GetUserDetailsRequest,
         pool: &std::sync::Arc<Pool<ConnectionManager<diesel::MysqlConnection>>>,
-    ) -> Result<Self, ()> {
-        let auth =
-            crate::sessions::resolvers::AdminAuthRequiredResolver::resolve(auth, &pool).await?;
+    ) -> Result<Self, super::errors::GetUserDetailsError> {
+        let auth = crate::sessions::resolvers::AdminAuth::resolve(request.auth, &pool).await?;
+        let user_id = request.user_id;
         let user = super::models::User::find(user_id)
             .first_async::<super::models::User>(&pool)
             .await
-            .map_err(|_| ())?;
+            .optional()?
+            .ok_or_else(|| super::errors::GetUserDetailsError::UnknownUser { user_id })?;
         Ok(Self { auth, user })
     }
 }
 
 #[derive(Debug, serde::Serialize)]
-pub struct UserDetailsResponse {
+pub struct GetUserDetailsResponse {
     user_id: u32,
     email: String,
-    //password: String,
     nickname: String,
-    //birthday: Date,
+    full_name: String,
     access: u32,
     created: i32,
     lastlogin: i32,
@@ -43,18 +43,18 @@ pub struct UserDetailsResponse {
     city_name: String,
     region_name: String,
     country_name: String,
-    full_name: String,
     job: String,
     is_activated: i8,
 }
 
-impl From<super::models::User> for UserDetailsResponse {
-    fn from(user: super::models::User) -> Self {
+impl From<UserDetails> for GetUserDetailsResponse {
+    fn from(user_details: UserDetails) -> Self {
+        let user = user_details.user;
         Self {
             user_id: user.user_id,
             email: user.email,
             nickname: user.nickname,
-            //birthday:
+            full_name: user.full_name,
             access: user.access,
             created: user.created,
             lastlogin: user.lastlogin,
@@ -64,7 +64,6 @@ impl From<super::models::User> for UserDetailsResponse {
             city_name: user.city_name,
             region_name: user.region_name,
             country_name: user.country_name,
-            full_name: user.FIO,
             job: user.job,
             is_activated: user.is_activated,
         }

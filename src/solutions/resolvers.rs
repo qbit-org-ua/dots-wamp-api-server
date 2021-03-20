@@ -1,5 +1,5 @@
 use diesel::r2d2::{ConnectionManager, Pool};
-use tokio_diesel::AsyncRunQueryDsl;
+use tokio_diesel::{AsyncRunQueryDsl, OptionalExtension};
 
 #[derive(Debug, serde::Deserialize)]
 pub struct SolutionDetailsRequest {
@@ -7,23 +7,28 @@ pub struct SolutionDetailsRequest {
     solution_id: u32,
 }
 
-pub struct SolutionDetailsRequestResolver {
-    pub auth: crate::sessions::resolvers::AuthRequiredResolver,
+pub struct SolutionDetails {
+    pub auth: crate::sessions::resolvers::Auth,
     pub solution: super::models::Solution,
 }
 
-impl SolutionDetailsRequestResolver {
+impl SolutionDetails {
     pub async fn resolve(
         SolutionDetailsRequest { auth, solution_id }: SolutionDetailsRequest,
         pool: &std::sync::Arc<Pool<ConnectionManager<diesel::MysqlConnection>>>,
-    ) -> Result<Self, ()> {
-        let auth = crate::sessions::resolvers::AuthRequiredResolver::resolve(auth, &pool).await?;
+    ) -> Result<Self, super::errors::GetSolutionDetailsError> {
+        let auth = crate::sessions::resolvers::Auth::resolve(auth, &pool).await?;
         let solution = super::models::Solution::find(solution_id)
             .first_async::<super::models::Solution>(&pool)
             .await
-            .map_err(|_| ())?;
+            .optional()?
+            .ok_or_else(|| super::errors::GetSolutionDetailsError::UnknownSolution {
+                solution_id,
+            })?;
         if !auth.user.is_admin() && auth.user.user_id != solution.user_id {
-            return Err(());
+            return Err(super::errors::GetSolutionDetailsError::PermissionDenied {
+                error_message: "Solution can be viewed only by its author".to_owned(),
+            });
         }
         Ok(Self { auth, solution })
     }

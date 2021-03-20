@@ -6,9 +6,9 @@ use crate::schema;
 pub struct User {
     pub user_id: u32,
     pub email: String,
-    //password: String,
     pub nickname: String,
-    //birthday: Date,
+    // NOTE: It is renamed from 'FIO'
+    pub full_name: String,
     pub access: u32,
     pub created: i32,
     pub lastlogin: i32,
@@ -18,7 +18,6 @@ pub struct User {
     pub city_name: String,
     pub region_name: String,
     pub country_name: String,
-    pub FIO: String,
     pub job: String,
     pub is_activated: i8,
 }
@@ -26,9 +25,8 @@ pub struct User {
 type AllColumns = (
     schema::users::columns::user_id,
     schema::users::columns::email,
-    //schema::users::columns::password,
     schema::users::columns::nickname,
-    //schema::users::columns::birthday,
+    schema::users::columns::FIO,
     schema::users::columns::access,
     schema::users::columns::created,
     schema::users::columns::lastlogin,
@@ -38,7 +36,6 @@ type AllColumns = (
     schema::users::columns::city_name,
     schema::users::columns::region_name,
     schema::users::columns::country_name,
-    schema::users::columns::FIO,
     schema::users::columns::job,
     schema::users::columns::is_activated,
 );
@@ -46,9 +43,8 @@ type AllColumns = (
 const ALL_COLUMNS: AllColumns = (
     schema::users::columns::user_id,
     schema::users::columns::email,
-    //schema::users::columns::password,
     schema::users::columns::nickname,
-    //schema::users::columns::birthday,
+    schema::users::columns::FIO,
     schema::users::columns::access,
     schema::users::columns::created,
     schema::users::columns::lastlogin,
@@ -58,7 +54,6 @@ const ALL_COLUMNS: AllColumns = (
     schema::users::columns::city_name,
     schema::users::columns::region_name,
     schema::users::columns::country_name,
-    schema::users::columns::FIO,
     schema::users::columns::job,
     schema::users::columns::is_activated,
 );

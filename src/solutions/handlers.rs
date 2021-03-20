@@ -28,12 +28,11 @@ pub fn get_solution_details<'a>(
                     wamp_async::try_from_kwargs(kwargs.ok_or_else(|| {
                         wamp_async::WampError::UnknownError("kwargs are required".to_string())
                     })?)?;
-                let resolved_input =
-                    super::resolvers::SolutionDetailsRequestResolver::resolve(input, &pool)
-                        .await
-                        .map_err(|err| {
-                            wamp_async::WampError::UnknownError("resolve err".to_string())
-                        })?;
+                let resolved_input = super::resolvers::SolutionDetails::resolve(input, &pool)
+                    .await
+                    .map_err(|err| {
+                        wamp_async::WampError::UnknownError("resolve err".to_string())
+                    })?;
 
                 let solution: super::resolvers::SolutionDetailsResponse =
                     resolved_input.solution.into();

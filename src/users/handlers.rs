@@ -24,19 +24,18 @@ pub fn get_user_details<'a>(
 
                 // //wamp_async::try_into_kwargs([("asd", 1)]).unwrap();
                 // let value = wamp_async::try_into_kwargs(q)?;
-                let input: super::resolvers::UserDetailsRequest =
+                let input: super::resolvers::GetUserDetailsRequest =
                     wamp_async::try_from_kwargs(kwargs.ok_or_else(|| {
                         wamp_async::WampError::UnknownError("kwargs are required".to_string())
                     })?)?;
-                let resolved_input =
-                    super::resolvers::UserDetailsRequestResolver::resolve(input, &pool)
-                        .await
-                        .map_err(|err| {
-                            wamp_async::WampError::UnknownError("resolve err".to_string())
-                        })?;
+                let resolved_input = super::resolvers::UserDetails::resolve(input, &pool)
+                    .await
+                    .map_err(|err| {
+                        wamp_async::WampError::UnknownError(format!("resolve err: {:?}", err))
+                    })?;
 
-                let user: super::resolvers::UserDetailsResponse = resolved_input.user.into();
-                let value = wamp_async::try_into_kwargs(user)?;
+                let response: super::resolvers::GetUserDetailsResponse = resolved_input.into();
+                let value = wamp_async::try_into_kwargs(response)?;
                 Ok((args, Some(value)))
             })
         },
