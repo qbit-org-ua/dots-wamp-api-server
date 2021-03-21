@@ -1,4 +1,3 @@
-use diesel::r2d2::{ConnectionManager, Pool};
 use tokio_diesel::{AsyncRunQueryDsl, OptionalExtension};
 
 #[derive(Debug, serde::Deserialize)]
@@ -15,7 +14,7 @@ pub struct UserDetails {
 impl UserDetails {
     pub async fn resolve(
         request: GetUserDetailsRequest,
-        pool: &std::sync::Arc<Pool<ConnectionManager<diesel::MysqlConnection>>>,
+        pool: &crate::helpers::DbPool,
     ) -> Result<Self, super::errors::GetUserDetailsError> {
         let auth = crate::sessions::resolvers::AdminAuth::resolve(request.auth, &pool).await?;
         let user_id = request.user_id;

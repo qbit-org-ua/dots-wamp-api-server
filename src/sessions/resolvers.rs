@@ -1,5 +1,4 @@
-use diesel::r2d2::{ConnectionManager, Pool};
-use tokio_diesel::AsyncRunQueryDsl;
+use tokio_diesel::{AsyncRunQueryDsl, OptionalExtension};
 
 #[derive(Debug, serde::Deserialize)]
 pub struct AuthRequiredRequest {
@@ -14,12 +13,13 @@ pub struct Auth {
 impl Auth {
     pub async fn resolve(
         AuthRequiredRequest { session_id }: AuthRequiredRequest,
-        pool: &std::sync::Arc<Pool<ConnectionManager<diesel::MysqlConnection>>>,
+        pool: &crate::helpers::DbPool,
     ) -> Result<Self, super::errors::AuthError> {
         let session = super::models::Session::find(session_id.clone())
             .first_async::<super::models::Session>(&pool)
             .await
-            .map_err(|_| super::errors::AuthError::UnknownSession {
+            .optional()?
+            .ok_or_else(|| super::errors::AuthError::UnknownSession {
                 session_id: session_id.clone(),
             })?;
         let user_id = session
@@ -44,7 +44,7 @@ impl From<AdminAuth> for Auth {
 impl AdminAuth {
     pub async fn resolve(
         request: AuthRequiredRequest,
-        pool: &std::sync::Arc<Pool<ConnectionManager<diesel::MysqlConnection>>>,
+        pool: &crate::helpers::DbPool,
     ) -> Result<Self, super::errors::AuthError> {
         let resolved = Auth::resolve(request, pool).await?;
         if resolved.user.is_admin() {

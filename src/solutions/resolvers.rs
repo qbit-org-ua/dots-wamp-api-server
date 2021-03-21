@@ -1,8 +1,7 @@
-use diesel::r2d2::{ConnectionManager, Pool};
 use tokio_diesel::{AsyncRunQueryDsl, OptionalExtension};
 
 #[derive(Debug, serde::Deserialize)]
-pub struct SolutionDetailsRequest {
+pub struct GetSolutionDetailsRequest {
     auth: crate::sessions::resolvers::AuthRequiredRequest,
     solution_id: u32,
 }
@@ -14,8 +13,8 @@ pub struct SolutionDetails {
 
 impl SolutionDetails {
     pub async fn resolve(
-        SolutionDetailsRequest { auth, solution_id }: SolutionDetailsRequest,
-        pool: &std::sync::Arc<Pool<ConnectionManager<diesel::MysqlConnection>>>,
+        GetSolutionDetailsRequest { auth, solution_id }: GetSolutionDetailsRequest,
+        pool: &crate::helpers::DbPool,
     ) -> Result<Self, super::errors::GetSolutionDetailsError> {
         let auth = crate::sessions::resolvers::Auth::resolve(auth, &pool).await?;
         let solution = super::models::Solution::find(solution_id)
@@ -35,7 +34,7 @@ impl SolutionDetails {
 }
 
 #[derive(Debug, serde::Serialize)]
-pub struct SolutionDetailsResponse {
+pub struct GetSolutionDetailsResponse {
     solution_id: u32,
     problem_id: u32,
     user_id: u32,
@@ -55,7 +54,7 @@ pub struct SolutionDetailsResponse {
     is_passed: i8,
 }
 
-impl From<super::models::Solution> for SolutionDetailsResponse {
+impl From<super::models::Solution> for GetSolutionDetailsResponse {
     fn from(solution: super::models::Solution) -> Self {
         Self {
             solution_id: solution.solution_id,

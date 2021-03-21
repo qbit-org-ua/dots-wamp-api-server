@@ -7,6 +7,7 @@ extern crate diesel;
 
 use wamp_async::{Client, ClientConfig, ClientState, SerializerType};
 
+mod helpers;
 mod schema;
 mod sessions;
 mod solutions;
@@ -18,12 +19,11 @@ const WAMP_COMMON_PREFIX: &'static str = "dots.2020";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    use chrono::{DateTime, Local, NaiveDateTime, TimeZone, Utc};
-
+    //use chrono::{DateTime, Local, NaiveDateTime, TimeZone, Utc};
     //let dt = DateTime::<Local>::from_utc(NaiveDateTime::from_timestamp(1602572652, 0), Utc);
     //let dt = Local.timestamp(1602572652, 0);
-    let dt = Local::now();
-    println!("dt: {:?}", dt.timestamp());
+    //let dt = Local::now();
+    //println!("dt: {:?}", dt.timestamp());
 
     let manager = ConnectionManager::<diesel::MysqlConnection>::new(
         "mysql://dots:dots_password@127.0.0.1:3306/dots",

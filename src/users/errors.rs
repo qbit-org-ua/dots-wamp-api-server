@@ -18,3 +18,9 @@ impl From<tokio_diesel::AsyncError> for GetUserDetailsError {
         }
     }
 }
+
+impl From<GetUserDetailsError> for wamp_async::WampError {
+    fn from(err: GetUserDetailsError) -> Self {
+        Self::UnknownError(format!("Failed to get user details: {}", err))
+    }
+}

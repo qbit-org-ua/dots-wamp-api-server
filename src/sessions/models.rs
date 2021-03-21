@@ -62,10 +62,10 @@ impl Session {
     }
 
     pub fn user_id(&self) -> Option<u32> {
-        let uid_field_identifier = "uid|i:";
-        let uid_field_position = self.session_data.find(uid_field_identifier)?;
+        const UID_FIELD_IDENTIFIER: &str = "uid|i:";
+        let uid_field_position = self.session_data.find(UID_FIELD_IDENTIFIER)?;
         let trimmed_left_session_data =
-            &self.session_data[(uid_field_position + uid_field_identifier.len())..];
+            &self.session_data[(uid_field_position + UID_FIELD_IDENTIFIER.len())..];
         let uid_str = &trimmed_left_session_data[..trimmed_left_session_data.find(';')?];
         uid_str.parse().ok()
     }

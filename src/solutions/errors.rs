@@ -20,3 +20,9 @@ impl From<tokio_diesel::AsyncError> for GetSolutionDetailsError {
         }
     }
 }
+
+impl From<GetSolutionDetailsError> for wamp_async::WampError {
+    fn from(err: GetSolutionDetailsError) -> Self {
+        Self::UnknownError(format!("Failed to get solution details: {}", err))
+    }
+}

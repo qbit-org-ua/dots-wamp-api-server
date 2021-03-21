@@ -5,7 +5,7 @@ pub fn get_user_details<'a>(
     pool: std::sync::Arc<Pool<ConnectionManager<diesel::MysqlConnection>>>,
 ) -> wamp_async::RpcFunc<'a> {
     Box::new(
-        move |args: Option<WampArgs>, kwargs: Option<WampKwArgs>| -> wamp_async::RpcFuture {
+        move |_args: Option<WampArgs>, kwargs: Option<WampKwArgs>| -> wamp_async::RpcFuture {
             let pool = std::sync::Arc::clone(&pool);
             Box::pin(async move {
                 //
@@ -25,18 +25,13 @@ pub fn get_user_details<'a>(
                 // //wamp_async::try_into_kwargs([("asd", 1)]).unwrap();
                 // let value = wamp_async::try_into_kwargs(q)?;
                 let input: super::resolvers::GetUserDetailsRequest =
-                    wamp_async::try_from_kwargs(kwargs.ok_or_else(|| {
-                        wamp_async::WampError::UnknownError("kwargs are required".to_string())
-                    })?)?;
-                let resolved_input = super::resolvers::UserDetails::resolve(input, &pool)
-                    .await
-                    .map_err(|err| {
-                        wamp_async::WampError::UnknownError(format!("resolve err: {:?}", err))
-                    })?;
+                    crate::helpers::try_from_kwargs_required(kwargs)?;
+
+                let resolved_input = super::resolvers::UserDetails::resolve(input, &pool).await?;
 
                 let response: super::resolvers::GetUserDetailsResponse = resolved_input.into();
                 let value = wamp_async::try_into_kwargs(response)?;
-                Ok((args, Some(value)))
+                Ok((None, Some(value)))
             })
         },
     )
