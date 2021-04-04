@@ -20,7 +20,8 @@ pub struct Solution {
     //pub score: Decimal,
     pub module_val: i32,
     pub compile_error: Option<String>,
-    pub is_passed: i8,
+    // NOTE: It is renamed from 'is_passed'
+    pub is_review_passed: i8,
 }
 
 type AllColumns = (

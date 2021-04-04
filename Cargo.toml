@@ -14,7 +14,10 @@ tokio-diesel = { git = "https://github.com/mehcode/tokio-diesel", rev = "f4af425
 serde = "1.0.116"
 serde_json = "1.0.57"
 
+clap = "3.0.0-beta.1"
 chrono = "0.4"
+url = "2"
 thiserror = "1.0.24"
+color-eyre = "0.5.10"
 
-wamp_async = "0.3"
+wamp_async = "0.3.1"

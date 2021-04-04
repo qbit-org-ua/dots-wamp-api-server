@@ -51,7 +51,7 @@ pub struct GetSolutionDetailsResponse {
     //score: Decimal,
     module_val: i32,
     compile_error: Option<String>,
-    is_passed: i8,
+    is_review_passed: bool,
 }
 
 impl From<super::models::Solution> for GetSolutionDetailsResponse {
@@ -73,7 +73,60 @@ impl From<super::models::Solution> for GetSolutionDetailsResponse {
             //score: solution.score,
             module_val: solution.module_val,
             compile_error: solution.compile_error,
-            is_passed: solution.is_passed,
+            is_review_passed: solution.is_review_passed == 1,
+        }
+    }
+}
+
+#[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum RecentSolutionStatus {
+    New,
+    Queued,
+    Executing,
+    Tested,
+}
+
+impl RecentSolutionStatus {
+    fn from_test_result(test_result: i32) -> Self {
+        match test_result {
+            -1 => Self::New,
+            -2 => Self::Queued,
+            -3 => Self::Executing,
+            _ => Self::Tested,
+        }
+    }
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct RecentSolution {
+    solution_id: u32,
+    updated_at_unixtime: u32,
+    basic_status: RecentSolutionStatus,
+}
+
+impl From<super::models::Solution> for RecentSolution {
+    fn from(solution: super::models::Solution) -> Self {
+        Self {
+            solution_id: solution.solution_id,
+            updated_at_unixtime: solution.checked_time,
+            basic_status: RecentSolutionStatus::from_test_result(solution.test_result),
+        }
+    }
+}
+
+#[derive(Debug, serde::Serialize)]
+pub struct RecentSolutionEvents {
+    recent_solutions: Vec<RecentSolution>,
+}
+
+impl From<Vec<super::models::Solution>> for RecentSolutionEvents {
+    fn from(recent_solutions: Vec<super::models::Solution>) -> Self {
+        Self {
+            recent_solutions: recent_solutions
+                .into_iter()
+                .map(crate::solutions::resolvers::RecentSolution::from)
+                .collect::<Vec<_>>(),
         }
     }
 }
