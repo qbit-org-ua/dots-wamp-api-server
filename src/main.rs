@@ -6,7 +6,9 @@ extern crate diesel;
 
 use wamp_async::{Client, ClientConfig, ClientState, SerializerType};
 
+mod contests;
 mod helpers;
+//mod problems;
 mod schema;
 mod sessions;
 mod solutions;
@@ -85,6 +87,8 @@ async fn main() -> color_eyre::Result<()> {
         .extend(crate::users::register(&client, &config.dots_wamp_common_prefix, &pool).await?);
     endpoint_rpc_ids
         .extend(crate::solutions::register(&client, &config.dots_wamp_common_prefix, &pool).await?);
+    endpoint_rpc_ids
+        .extend(crate::contests::register(&client, &config.dots_wamp_common_prefix, &pool).await?);
 
     use diesel::ExpressionMethods;
     use diesel::QueryDsl;

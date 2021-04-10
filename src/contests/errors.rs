@@ -1,5 +1,5 @@
 #[derive(Debug, thiserror::Error)]
-pub enum GetSolutionDetailsError {
+pub enum GetContestDetailsError {
     #[error("Internal error: {error_message}")]
     InternalError { error_message: String },
     #[error("Authentication error: {error}")]
@@ -7,11 +7,11 @@ pub enum GetSolutionDetailsError {
         #[from]
         error: crate::sessions::errors::AuthError,
     },
-    #[error("Solution with ID #{solution_id} is unknown")]
-    UnknownSolution { solution_id: u32 },
+    #[error("Contest with ID #{contest_id} is unknown")]
+    UnknownContest { contest_id: i32 },
 }
 
-impl From<tokio_diesel::AsyncError> for GetSolutionDetailsError {
+impl From<tokio_diesel::AsyncError> for GetContestDetailsError {
     fn from(err: tokio_diesel::AsyncError) -> Self {
         Self::InternalError {
             error_message: err.to_string(),
@@ -19,8 +19,8 @@ impl From<tokio_diesel::AsyncError> for GetSolutionDetailsError {
     }
 }
 
-impl From<GetSolutionDetailsError> for wamp_async::WampError {
-    fn from(err: GetSolutionDetailsError) -> Self {
-        Self::UnknownError(format!("Failed to get solution details: {}", err))
+impl From<GetContestDetailsError> for wamp_async::WampError {
+    fn from(err: GetContestDetailsError) -> Self {
+        Self::UnknownError(format!("Failed to get contest details: {}", err))
     }
 }

@@ -25,8 +25,10 @@ impl SolutionDetails {
                 solution_id,
             })?;
         if !auth.user.is_admin() && auth.user.user_id != solution.user_id {
-            return Err(super::errors::GetSolutionDetailsError::PermissionDenied {
-                error_message: "Solution can be viewed only by its author".to_owned(),
+            return Err(super::errors::GetSolutionDetailsError::Auth {
+                error: crate::sessions::errors::AuthError::PermissionDenied {
+                    expected_permission: "author".to_owned(),
+                },
             });
         }
         Ok(Self { auth, solution })
