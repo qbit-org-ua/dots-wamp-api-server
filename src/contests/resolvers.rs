@@ -8,7 +8,7 @@ pub struct GetContestDetailsRequest {
 
 pub struct ContestDetails {
     pub auth: crate::sessions::resolvers::Auth,
-    pub contest: super::models::Contest,
+    pub contest: super::models::contest::Contest,
 }
 
 impl ContestDetails {
@@ -18,8 +18,8 @@ impl ContestDetails {
     ) -> Result<Self, super::errors::GetContestDetailsError> {
         let auth = crate::sessions::resolvers::Auth::resolve(auth, &pool).await?;
         let contest = if auth.user.is_admin() {
-            super::models::Contest::find(contest_id)
-                .first_async::<super::models::Contest>(&pool)
+            super::models::contest::Contest::find(contest_id)
+                .first_async::<super::models::contest::Contest>(&pool)
                 .await
                 .optional()?
                 .ok_or_else(|| super::errors::GetContestDetailsError::Auth {
@@ -28,8 +28,8 @@ impl ContestDetails {
                     },
                 })?
         } else {
-            super::models::Contest::find_registered(auth.user.user_id, contest_id)
-                .first_async::<super::models::Contest>(&pool)
+            super::models::contest::Contest::find_registered(auth.user.user_id, contest_id)
+                .first_async::<super::models::contest::Contest>(&pool)
                 .await
                 .optional()?
                 .ok_or_else(|| super::errors::GetContestDetailsError::UnknownContest {
@@ -54,8 +54,8 @@ pub struct GetContestDetailsResponse {
     allow_languages: String,
 }
 
-impl From<super::models::Contest> for GetContestDetailsResponse {
-    fn from(contest: super::models::Contest) -> Self {
+impl From<super::models::contest::Contest> for GetContestDetailsResponse {
+    fn from(contest: super::models::contest::Contest) -> Self {
         Self {
             contest_id: contest.contest_id,
             title: contest.title,
